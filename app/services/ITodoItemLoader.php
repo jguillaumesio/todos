@@ -31,8 +31,9 @@ interface ITodoItemLoader {
 	 * Ajoute un Todo-item
 	 *
 	 * @param TodoItem $item
+	 * @return string
 	 */
-	public function add(TodoItem $item): void;
+	public function add(TodoItem $item): string;
 
 	/**
 	 * Supprime tous les items

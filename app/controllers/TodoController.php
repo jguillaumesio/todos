@@ -59,7 +59,8 @@ class TodoController extends ControllerBase {
 	 */
 	public function delete(string $id) {
 		$this->loader->remove ( $id );
-		$msg = $this->jquery->semantic ()->htmlMessage ( '', 'Item supprimé' );
+		$msg = $this->jquery->semantic ()->htmlMessage ( 'removeMsg', 'Item supprimé' );
+		$msg->onCreate('setTimeout(function(){document.getElementById("removeMsg").remove()}, 3000);');
 		$this->_index ( $msg );
 	}
 
@@ -76,8 +77,9 @@ class TodoController extends ControllerBase {
 	 * @get("add")
 	 */
 	public function add() {
-		$this->jquery->postFormOnClick ( '#btValidate', '/add', 'frmItem', 'body', [ 
-				'hasLoader' => 'internal'
+		$this->jquery->postFormOnClick ( '#btValidate', '/add', 'frmItem', 'body', [
+				'hasLoader' => 'internal',
+				'jsCondition' => '(document.forms["frmItem"]["caption"].value!="") ? true : false'
 		] );
 		if (URequest::isAjax ()) {
 			$this->jquery->renderView ( 'TodoController/add.html' );
@@ -90,11 +92,13 @@ class TodoController extends ControllerBase {
 	 *
 	 * @post("add")
 	 */
-	public function submit() {
+	public function submit(){
 		$item = new TodoItem ();
-		$item->setCaption ( URequest::post ( 'caption', 'no caption' ) );
-		$this->loader->add ( $item );
-		$msg = $this->jquery->semantic ()->htmlMessage ( '', 'Item ajouté' );
+		$item->setCaption ( URequest::post ( 'caption') );
+		$submitSuccess=$this->loader->add ( $item );
+		if($submitSuccess){$msg = $this->jquery->semantic ()->htmlMessage ( 'addMsg', 'Item ajouté' );}
+		else{$msg = $this->jquery->semantic ()->htmlMessage ( 'addMsg', 'L\'item existe déjà' );}
+		$msg->onCreate('setTimeout(function(){document.getElementById("addMsg").remove()}, 3000);');
 		$this->_index ( $msg );
 	}
 	private function _index($response = '') {
@@ -116,6 +120,7 @@ class TodoController extends ControllerBase {
 		$this->loader->clear ();
 		$msg = $this->jquery->semantic ()->htmlMessage ( 'clearMsg', 'Liste d\'items vidée', 'info' );
 		$msg->addIcon ( 'info' );
+		$msg->onCreate('setTimeout(function(){document.getElementById("clearMsg").remove()}, 3000);');
 		$this->_index ( $msg );
 	}
 }

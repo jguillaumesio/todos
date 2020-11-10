@@ -24,9 +24,13 @@ class TodoSessionLoader implements ITodoItemLoader {
 
 		return false;
 	}
-	public function add(TodoItem $item): void {
-		$item->setId ( \uniqid () );
-		USession::addOrRemoveValueFromArray ( self::SESSION_KEY, $item, true );
+	public function add(TodoItem $item): string {
+		if(!in_array($item->getCaption(),$this->all())) {
+			$item->setId(\uniqid());
+			USession::addOrRemoveValueFromArray(self::SESSION_KEY, $item, true);
+			return true;
+		}
+		return false;
 	}
 	public function clear(): void {
 		USession::delete ( self::SESSION_KEY );
